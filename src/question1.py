@@ -28,12 +28,25 @@ def load_queries(path):
 def load_relevant(path):
     with open(path, "r", encoding="utf-8") as file:
         for line in file:
-            if not line.strip():
+            parts = line.split()
+            if not parts:
                 continue
-            qID, docID, rel = line.split()
-            relevant[qID][docID] = int(rel)
+            qID = parts[0]
+            docID = parts[1:]
+
+            for d in docID:
+                relevant[qID][d]=1 #σήμανση ως relevant
     return relevant
 
+#Φιλτράρισμα για όσα relevant docs δεν υπάρχουν στο φάκελο data/docs 
+def filtering_missing_docs(relevant, docs):
+    cleaned_relevant = defaultdict(dict)
+
+    for qID, docs_info in relevant.items():
+        for docID, rel in docs_info.items():
+            if docID in docs:  #κρατάω μόνο αν το docID υπάρχει στα docs
+                cleaned_relevant[qID][docID] = rel
+    return cleaned_relevant
 
 # Προεπεξεργασία κειμένου: ουσιαστικά, μετατρέπω κάθε κείμενο σε καθαρή μορφή-λίστα tokens
 # Δηλαδή, μετατρέπω όλα τα γράμματα σε πεζά(lowercase), αφαιρώ σημεία στίξης, αριθμούς και 
@@ -67,6 +80,8 @@ if __name__ == "__main__":
     print("Σύνολο εγγράφων στον φάκελο docs:", len(docs))
     print(list(docs.keys())[:10])
 
+    relevant = load_relevant("data/relevant.txt")
+    relevant = filtering_missing_docs(relevant, docs)
 
     sample = list(docs.values())[0]
     print(preprocess_text(sample)[:40])
