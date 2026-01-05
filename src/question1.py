@@ -2,6 +2,7 @@ import os
 import re
 from nltk.corpus import stopwords
 from collections import defaultdict
+from nltk.stem import PorterStemmer
 relevant = defaultdict(dict)
 
 # Διάβασμα και φόρτωση περιεχομένων των εγγράφων που υπάρχουν στον φάκελο data/docs/, queries.txt και relevant.txt
@@ -23,11 +24,18 @@ def load_documents(docs_path):
 def load_queries(path):
     queries={}
     with open(path, "r", encoding="utf-8") as file:
+        q_counter = 1
         for line in file:
-            if not line.strip():
+            line = line.strip()
+            if not line:
                 continue
-            qID, text = line.split("\t", 1)
-            queries[qID] = text.strip()
+            if "\t" in line:
+              qID, text = line.split("\t", 1)
+            else:
+                qID = str(q_counter)
+                text = line
+            queries[qID] = text
+            q_counter += 1
     return queries
 
 def load_relevant(path):
@@ -59,11 +67,14 @@ def filtering_missing_docs(relevant, docs):
 # stopwords(the, is, at, a, and, κτλπ)
 
 STOPWORDS = set(stopwords.words("english")) #Φόρτωση λίστας stopwords από την βιβλιοθήκη nltk
+stemmer = PorterStemmer()
+
 def preprocess_text(text):
     text=text.lower() #μετατροπή σε πεζά
     text=re.sub(r"[^a-z\s]", " ", text) #αφαίρεση σημείων στίξης και αριθμών (κρατάω μόνο πεζά γράμματα και κενά)
     tokens=text.split() #σπάσιμο κειμένου σε tokens με βάση τα κενά (tokenization)
     tokens= [t for t in tokens if t not in STOPWORDS and len(t)>2] #αφαίρεση stopwords και πολύ μικρών λέξεων (μήκους<=2)
+    tokens = [stemmer.stem(t) for t in tokens] #stemming για μείωση των λέξεων στη ρίζα τους 
     return tokens
 
 #Δημιουργία του Αναστραμμένου Ευρετηρίου (Inverted Index)
