@@ -1,5 +1,5 @@
 # Information_Retrieval_Project 2025-2026
-<h2><b>This is my implementation for the project of the subject "Information Retrieval (Ανάκτηση Πληροφορίας)" during my 7th semester at CEID, Upatras.</b></h2></br>
+<h2><b>This is my implementation for the project of the subject</br> "Information Retrieval (Ανάκτηση Πληροφορίας)" during my 7th semester at CEID, Upatras.</b></h2>
 <h3><b><center>ΠΕΡΙΓΡΑΦΗ</center></b></h3>
 <h4> Πρόκειτα για μια εργαστηριακή άσκηση, χειμερινού εξαμήνου για το μάθημα επιλογής <b>Ανάκτηση Πληροφορίας</b> του τμήματος Μηχανικών Η/Υ και Πληροφορικής, του Πανεπιστημίου Πατρών
      Το project περιλαμβάνει την υλοποίηση και σύγκριση μηχανών αναζήτησης με χρήσης με χρήση της συλλογής <b>Cystic Fibrosis (C.F)</b> που αποτελείται από:</br>
