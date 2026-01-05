@@ -9,6 +9,11 @@ def load_documents(docs_path):
     docs={}
     for filename in os.listdir(docs_path):
         doc_id = os.path.splitext(filename)[0]
+
+        try:
+            doc_id = str(int(doc_id)) #μετατροπή string σε ακέραιο
+        except ValueError:
+            pass
         file_path = os.path.join(docs_path, filename)
         with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
             text=file.read().strip()
