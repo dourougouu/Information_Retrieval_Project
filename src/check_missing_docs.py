@@ -1,5 +1,5 @@
 import os
-from question1 import load_documents, load_relevant, filtering_missing_docs
+from test import load_documents, load_relevant, filtering_missing_docs
 
 docs = load_documents("data/docs/")
 relevant = load_relevant("data/relevant.txt")

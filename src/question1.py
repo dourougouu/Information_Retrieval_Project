@@ -26,16 +26,17 @@ def load_queries(path):
     return queries
 
 def load_relevant(path):
+    relevant=defaultdict(dict)
     with open(path, "r", encoding="utf-8") as file:
-        for line in file:
-            parts = line.split()
-            if not parts:
-                continue
-            qID = parts[0]
-            docID = parts[1:]
+        for line_num, line in enumerate(file, start=1):
+            if not line.strip():
+               continue
 
-            for d in docID:
-                relevant[qID][d]=1 #σήμανση ως relevant
+            docIDs = line.split()
+            qID = str(line_num)
+
+            for docID in docIDs:
+                relevant[qID][docID]=1 #σήμανση ως relevant
     return relevant
 
 #Φιλτράρισμα για όσα relevant docs δεν υπάρχουν στο φάκελο data/docs 
