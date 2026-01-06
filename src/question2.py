@@ -8,16 +8,19 @@ from question1 import (load_documents, load_queries, preprocess_text, create_inv
 def calculate_idf(inverted_index, N):
     idf = {}
     for term, postings in inverted_index.items():
-        idf[term] = math.log(N / len(postings))
+        df = len(postings)
+        idf[term] = math.log((N+1) / (df+1)) + 1
     return idf
 
-#Υπολογισμός TF-IDF βαρών για κάθε έγγραφο και ερώτημα 
+#Υπολογισμός TF-IDF βάρων
 def tfidf_weighting(tf, idf):
     return tf*idf
 
-#Υπολογισμός λογαρίθμου TF-IDF βαρών για κάθε έγγραφο και ερώτημα 
+#Υπολογισμός λογαρίθμου TF-IDF βάρων
 def log_tfidf(tf, idf):
-    return (1 + math.log(tf))*idf
+    if tf>0:
+      return (1 + math.log(tf))*idf
+    return 0
 
 #Δημιουργία διανύσματος εγγράφου
 def doc_vector(docID, inverted_index, idf, scheme="tfidf"):
@@ -25,8 +28,13 @@ def doc_vector(docID, inverted_index, idf, scheme="tfidf"):
     for term, posting in inverted_index.items():
         if docID in posting:
             tf = posting[docID]
-            vector[term] = tfidf_weighting(tf, idf[term]) if scheme == "tfidf" \
-                else log_tfidf(tf, idf[term])
+            if scheme == "tfidf":
+               vector[term] = tfidf_weighting(tf, idf[term])
+            elif scheme == "log": 
+               vector[term] = log_tfidf(tf, idf[term])
+    
+    if not vector:
+        print(f"ΠΡΟΒΛΗΜΑ: Κένο doc vector για το doc: {docID[:50]}...")
     return vector
 
 #Δημιουργία διανύσματος ερώτησης-query
@@ -39,8 +47,14 @@ def query_vector(query, idf, scheme="tfidf"):
     vector = {}
     for term, tf in frequency.items():
         if term in idf:
-            vector[term] = tfidf_weighting(tf, idf[term]) if scheme == "tfidf" \
-                else log_tfidf(tf, idf[term])
+            if scheme == "tfidf":
+               vector[term] = tfidf_weighting(tf, idf[term])
+            elif scheme == "log":
+               vector[term] = log_tfidf(tf, idf[term])
+    
+    if not vector:
+        print(f"ΠΡΟΒΛΗΜΑ: Κένο query vector για το query: {query[:50]}...")
+
     return vector
 
 #Υπολιγισμός συσχέτισης με εφαρμογή συνημίτονου της γωνίας για 
@@ -55,6 +69,10 @@ def cos_similarity(vector1, vector2):
 #και επιστροφή των πιο σχετικών εγγράφων
 def ranking_docs(query, docs, inverted_index, idf, scheme="tfidf"):
     qr_vector = query_vector(query, idf, scheme)
+    if not qr_vector:
+        print(f"ΠΡΟΣΟΧΗ: Κενό query vector για: {query[:50]}...")
+        return[]
+
     scores = []
 
     for docID in docs:
@@ -76,12 +94,16 @@ if __name__ == "__main__":
     qID = list(queries.keys())[0]
     query = queries[qID]
 
-    print("Αποτελέσματα TF-IDF\n")
-    results = ranking_docs(query, docs, inverted_index, idf, "tfidf")
-    print(results[:5])  #εμφάνιση των 5 πιο σχετικών εγγράφων
-
-    print("Αποτελέσματα LOG TF-IDF\n")
-    results = ranking_docs(query, docs, inverted_index , idf, "log")
-    print(results[:5]) 
-
+# Δοκιμή με όλα τα ερωτήματα (όχι μόνο το πρώτο)
+for qID, query in list(queries.items())[:3]:  # πρώτα 3 για αρχή
+    print(f"\n{'='*50}")
+    print(f"Query ID: {qID}")
+    print(f"Query: {query[:80]}...")
     
+    print("\nTF-IDF Top 3:")
+    results_tfidf = ranking_docs(query, docs, inverted_index, idf, "tfidf")
+    print(results_tfidf[:3])
+    
+    print("\nLOG TF-IDF Top 3:")
+    results_log = ranking_docs(query, docs, inverted_index, idf, "log")
+    print(results_log[:3])
