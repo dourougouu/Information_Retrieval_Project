@@ -8,19 +8,19 @@
 </h3>
 
 <h3><b><center> ΥΛΟΠΟΙΗΜΕΝΕΣ ΛΕΙΤΟΥΡΓΙΕΣ </center></b></br>
-  <ul><b>Ερώτημα1</b> Ανάγνωση και επεξεργασία συλλογής </ul>
+  <p><ul><b>Ερώτημα1</b> Ανάγνωση και επεξεργασία συλλογής </ul>
   <ul><b>Ερώτημα2</b> Vector Space Model (VSM)</ul>
   <ul><b>Ερώτημα3</b> Μετρικές αξιολόγησης</ul>
   <ul><b>Ερώτημα4</b> Παραμετροποίηση Tfidf Vectorizer</ul>
-  <ul><b>Ερώτημα5</b> Clustering</ul>
+  <ul><b>Ερώτημα5</b> Clustering</ul></p>
 </h3>     
 
 <h3><b><center> ΕΚΤΕΛΕΣΗ ΣΥΓΚΕΚΡΙΜΕΝΟΥ ΕΡΩΤΗΜΑΤΟΣ </center></b></br>
-  python src/question1.py</br>
+  <p>python src/question1.py</br>
   python src/question2.py</br>
   python src/question3.py</br>
   python src/question4.py</br>
-  python src/question5.py</br>
+  python src/question5.py</br></p>
 </h3>
 
 
