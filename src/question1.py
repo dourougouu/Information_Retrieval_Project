@@ -1,4 +1,4 @@
-import os
+import os #βιβλιοθήκη για διάβασμα αρχείων
 import re
 from nltk.corpus import stopwords
 from collections import defaultdict
