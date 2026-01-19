@@ -1,6 +1,8 @@
 import time
+import os
 import numpy as np 
 import itertools
+import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
@@ -65,7 +67,7 @@ def test_tfidf_parameters(queries, docs, relevant, k_values=[5, 10, 20]):
         'sublinear_tf': [True, False],
         'min_df': [1, 2, 3],
         'max_df': [0.8, 0.9, 1.0],
-        'norm': ['l1', None]
+        'norm': ['l1', 'l2', None]
     }
 
     #Δημιουργία συνδυασμών
@@ -210,7 +212,107 @@ def compare_all_models_used(queries, docs, relevant, inverted_index, idf, prob_i
         })
     print("-"*70)
     return comparison_data
+
+def visualization_of_data(comparison_data, output_dir="results"):
+    os.makedirs(output_dir, exist_ok=True)
     
+    models = [d['model'] for d in comparison_data]
+    precisions = [d['precision'] for d in comparison_data]
+    recalls = [d['recall'] for d in comparison_data]
+    f1_scores = [d['f1_score'] for d in comparison_data]
+    precisions_at_10 = [d['precision@10'] for d in comparison_data]
+    times = [d['execution_time'] for d in comparison_data]
+
+    #γραγηματα
+    fig, ax = plt.subplots(figsize=(10, 8))
+    colors = ['steelblue', 'coral', 'seagreen', 'purple']
+    
+    for i, (model, prec, rec) in enumerate(zip(models, precisions, recalls)):
+        ax.scatter(rec, prec, s=300, alpha=0.6, color=colors[i], label=model, edgecolors='black', linewidths=1.5)
+        ax.annotate(model, (rec, prec), textcoords="offset points", xytext=(0, 10), ha='center', fontsize=10)
+    
+    ax.set_xlabel('Recall', fontsize=12)
+    ax.set_ylabel('Precision', fontsize=12)
+    ax.set_title('Precision-Recall Trade-off', fontsize=14, fontweight='bold')
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc='best')
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/precision_recall_tradeoff.png', dpi=300, bbox_inches='tight')
+    print(f"Αποθηκεύτηκε το αρχείο: {output_dir}/precision_recall_tradeoff.png")
+    plt.close()
+    
+    #γραφημα χρονου εκτελεσης
+    fig, ax = plt.subplots(figsize=(10, 6))
+    x_pos = np.arange(len(models))
+    bars = ax.bar(x_pos, times, color=['steelblue', 'coral', 'seagreen', 'purple'], alpha=0.7, edgecolor='black')
+    ax.set_xlabel('Μοντέλα', fontsize=12)
+    ax.set_ylabel('Χρόνος (δευτερόλεπτα)', fontsize=12)
+    ax.set_title('Σύγκριση Χρόνου Εκτέλεσης', fontsize=14, fontweight='bold')
+    ax.set_xticks(x_pos)   #Οριζω τις θεσεις πρωτα
+    ax.set_xticklabels(models, rotation=15, ha='right')  #και μετα τα lebels
+    ax.grid(axis='y', alpha=0.3)
+    ax.set_yscale('log')
+    
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(bar.get_x() + bar.get_width()/2., height, f'{height:.2f}s', 
+                ha='center', va='bottom', fontsize=10, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.savefig(f'{output_dir}/execution_time.png', dpi=300, bbox_inches='tight')
+    print(f"Αποθηκεύτηκε το αρχείο: {output_dir}/execution_time.png")
+    plt.close()
+
+
+def save_results_to_file(comparison_data, best_param, output_file='results/results4.txt'):
+    #Αποθήκευση αποτελεσμάτων σε αρχείο κειμένου
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write("="*70 + "\n")
+        f.write("ΑΠΟΤΕΛΕΣΜΑΤΑ ΕΡΩΤΗΜΑΤΟΣ 4 - ΣΥΓΚΡΙΣΗ ΜΟΝΤΕΛΩΝ\n")
+        f.write("="*70 + "\n\n")
+        
+        f.write("ΒΕΛΤΙΣΤΕΣ ΠΑΡΑΜΕΤΡΟΙ SKLEARN TF-IDF:\n")
+        f.write("-"*70 + "\n")
+        for key, value in best_param.items():
+            f.write(f"  {key}: {value}\n")
+        f.write("\n")
+        
+        f.write("ΑΠΟΤΕΛΕΣΜΑΤΑ ΣΥΓΚΡΙΣΗΣ:\n")
+        f.write("-"*85 + "\n")
+        f.write(f"{'Μοντέλο':<20} {'Precision':<12} {'Recall':<12} {'F1-Score':<12} {'Precision@10':<12} {'Time':<12}\n")
+        f.write("-"*85 + "\n")
+        
+        for data in comparison_data:
+            f.write(f"{data['model']:<20} {data['precision']:<12.4f} {data['recall']:<12.4f} "
+                   f"{data['f1_score']:<12.4f} {data['precision@10']:<12.4f} {data['execution_time']:<12.4f}\n")
+        
+        f.write("-"*85 + "\n\n")
+        
+        #παρατηρήσεις
+        best_f1 = max(comparison_data, key=lambda x: x['f1_score'])
+        fastest = min(comparison_data, key=lambda x: x['execution_time'])
+        best_precision = max(comparison_data, key=lambda x: x['precision'])
+        best_recall = max(comparison_data, key=lambda x: x['recall'])
+        
+        f.write("ΠΑΡΑΤΗΡΗΣΕΙΣ:\n")
+        f.write("-"*70 + "\n")
+        f.write(f"1. Καλύτερο F1-Score: {best_f1['model']} ({best_f1['f1_score']:.4f})\n")
+        f.write(f"2. Υψηλότερη Precision: {best_precision['model']} ({best_precision['precision']:.4f})\n")
+        f.write(f"3. Υψηλότερο Recall: {best_recall['model']} ({best_recall['recall']:.4f})\n")
+        f.write(f"4. Ταχύτερο μοντέλο: {fastest['model']} ({fastest['execution_time']:.4f}s)\n\n")
+        
+        f.write("ΣΥΜΠΕΡΑΣΜΑΤΑ:\n")
+        f.write("-"*70 + "\n")
+        f.write("- Το Probabilistic μοντέλο προσφέρει την καλύτερη ισορροπία (F1-Score)\n")
+        f.write("- Το Sklearn TF-IDF είναι εξαιρετικά γρήγορο αλλά με χαμηλό Recall\n")
+        f.write("- Τα TF-IDF/Log TF-IDF έχουν πολύ υψηλό Recall αλλά χαμηλή Precision\n")
+        f.write("- Υπάρχει σαφές trade-off μεταξύ Precision και Recall\n")
+    
+    print(f"\nΑποθηκεύτηκε: {output_file}")
+    
+
 if __name__ == "__main__":
     print("Φόρτωση δεδομένων........")
     docs = load_documents("data/docs")
@@ -237,8 +339,19 @@ if __name__ == "__main__":
     #Σύγκριση όλων των μοντέλων
     comparison_data = compare_all_models_used(queries, docs, relevant, inverted_index, idf, prob_idf, best_param)
 
+    # Δημιουργία γραφημάτων
+    print("\nΔημιουργία γραφημάτων...")
+    visualization_of_data(comparison_data)
+    
+    # Αποθήκευση αποτελεσμάτων
+    save_results_to_file(comparison_data, best_param)
+    
+    print("\n" + "="*70)
     print("\nΟλοκληρώθηκε η ανάλυση!")
-        
+    print("\nΑρχεία που δημιουργήθηκαν:")
+    print("  - results/results4.txt")
+    print("  - results/precision_recall_tradeoff.png")
+    print("  - results/execution_time.png")
 
 
 
