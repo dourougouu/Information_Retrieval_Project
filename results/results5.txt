@@ -1,0 +1,35 @@
+**********************************************************************
+ΑΠΟΤΕΛΕΣΜΑΤΑ ΕΡΩΤΗΜΑΤΟΣ 5 - CLUSTERING
+**********************************************************************
+
+1. TF-IDF Clustering-> best k: 2 (best silhouette=0.0091, time=0.1711s)
+
+ Cluster sizes:
+Cluster 0: 326 documents
+Cluster 1: 873 documents
+Top terms per cluster:
+Cluster 0: cf, serum, normal, patients, activity, alpha, fibroblasts, control, controls, plasma
+Cluster 1: patients, children, disease, cf, pulmonary, sweat, diagnosis, clinical, test, treatment
+
+PCA Explained Variance (TF-IDF): 1.67%
+
+2. Embeddings -> best k: 8 (embedding model: sentence-transformers/all-MiniLM-L6-v2), best silhouette=0.1039, time=73.6875s)
+
+ Cluster sizes:
+Cluster 0: 133 documents
+Cluster 1: 182 documents
+Cluster 2: 163 documents
+Cluster 3: 134 documents
+Cluster 4: 114 documents
+Cluster 5: 127 documents
+Cluster 6: 249 documents
+Cluster 7: 97 documents
+
+PCA Explained Variance (Embeddings): 12.31%
+
+3.Comparison TF-IDF vs Embeddings clustering:
+TF-IDF best k: 2
+Embeddings best k: 8
+TF-IDF best silhouette: 0.0091
+Embeddings best silhouette: 0.1039
+Adjusted Rand Index: 0.0790
