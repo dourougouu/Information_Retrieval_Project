@@ -430,7 +430,7 @@ def save_results_to_file(comparison_data, best_param, results_list, output_file=
         # Ανάλυση παραμέτρων
         f.write("ΑΝΑΛΥΣΗ ΒΕΛΤΙΣΤΩΝ ΠΑΡΑΜΕΤΡΩΝ:\n")
         f.write("-"*100 + "\n")
-        analysis = analyze_best_parameters(best_param)
+        analysis = analyze_best_parameters(best_param, results_list)
         f.write(analysis + "\n\n")
         
         f.write("ΑΠΟΤΕΛΕΣΜΑΤΑ ΣΥΓΚΡΙΣΗΣ:\n")
@@ -440,13 +440,13 @@ def save_results_to_file(comparison_data, best_param, results_list, output_file=
         
         for data in comparison_data:
             f.write(f"{data['model']:<20} {data['precision']:<12.4f} {data['recall']:<12.4f} "
-                    f"{data['f1_score']:<12.4f} {data['MAP']:<12.4f} {data['precision@5']:<10.4f} {data['precision@10']:<10.4f} {data['precision@20']:<10.4f}  {data['indexing_time']:<10.4f} {data['retrieval_time']:<10.4f} {data['total_time']:<10.4f}\n")
+                    f"{data['f1_score']:<12.4f} {data['MAP']:<12.4f} {data['precision@5']:<10.4f} {data['precision@10']:<10.4f} {data['precision@20']:<10.4f}  {data['indexing_time']:<10.4f} {data['retrieval_time']:<10.4f} {data['execution_time']:<10.4f}\n")
         f.write("-"*85 + "\n\n")
         
         #ευρεση καλυτερων μοντελων
         best_f1 = max(comparison_data, key=lambda x: x['f1_score'])
         best_map = max(comparison_data, key=lambda x: x['MAP'])
-        fastest_total = min(comparison_data, key=lambda x: x['total_time'])
+        fastest_total = min(comparison_data, key=lambda x: x['execution_time'])
         fastest_retrieval = min(comparison_data, key=lambda x: x['retrieval_time'])
         best_precision = max(comparison_data, key=lambda x: x['precision'])
         best_recall = max(comparison_data, key=lambda x: x['recall'])
@@ -459,7 +459,7 @@ def save_results_to_file(comparison_data, best_param, results_list, output_file=
         f.write(f"2. Καλύτερο MAP: {best_map['model']} ({best_map['MAP']:.4f})\n")
         f.write(f"3. Υψηλότερη Precision: {best_precision['model']} ({best_precision['precision']:.4f})\n")
         f.write(f"4. Υψηλότερο Recall: {best_recall['model']} ({best_recall['recall']:.4f})\n")
-        f.write(f"5. Ταχύτερο μοντέλο συνολικά: {fastest_total['model']} ({fastest_total['total_time']:.4f}s)\n\n")
+        f.write(f"5. Ταχύτερο μοντέλο συνολικά: {fastest_total['model']} ({fastest_total['execution_time']:.4f}s)\n\n")
         f.write(f"6. Ταχύτερο μοντέλο ανάκτησης: {fastest_retrieval['model']} ({fastest_retrieval['retrieval_time']:.4f}s)\n\n")
 
         
